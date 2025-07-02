@@ -20,21 +20,19 @@ export const CONNECT_DB = async () => {
 
   mongoDbInstance = mongoDbClient.db(DATABASENAME)
 
-  assert(mongoDbInstance, 'mongoDbInstance must exist')
-
   await mongoDbClient.db(DATABASENAME).command({ ping: 1 })
 }
 
 export const GET_DB = () => {
   if (!mongoDbInstance) throw new Error('Must connect to Database first')
 
-  return mongoDbInstance
+  return env.MODE == 'dev' ? mongoDbClient.db(DATABASENAME) : mongoDbClient.db(DATABASENAME)
 }
 
 export const CLOSE_DB = async () => {
   await mongoDbClient.close()
 }
 
-export const GET_NEW_SESSION = () => {
+export const START_NEW_SESSION = () => {
   return mongoDbClient.startSession()
 }

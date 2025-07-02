@@ -62,10 +62,21 @@ const getBoardDetails = async (id) => {
   return boardDetails
 }
 
+const updateBoard = async (boardId, boardData) => {
+  const result = await boardModel.updateBoard(boardId, boardData)
+
+  if (result.matchedCount == 0) throw new ApiErros(
+    StatusCodes.NOT_FOUND,
+    `Not found board with id ${boardId}`)
+
+  return result
+}
+
 export const boardService = {
   createNew,
   getAll,
   findOneById,
-  getBoardDetails
+  getBoardDetails,
+  updateBoard
 }
 

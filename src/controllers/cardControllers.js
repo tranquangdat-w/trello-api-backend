@@ -1,18 +1,19 @@
 import { StatusCodes } from 'http-status-codes'
-import { columnServices } from '~/services/columnServices'
+import { cardServices } from '~/services/cardServices'
 import assert from 'assert'
 import { START_NEW_SESSION } from '~/config/mongodb'
 
 const createNew = async (req, res, next) => {
   const session = START_NEW_SESSION()
-
   try {
     session.startTransaction()
 
-    const createdColumn = await columnServices.createNew(req.body, { session })
+    // { session } for { ...session } in model
+    const newCard = await cardServices.createNew(req.body, { session })
+
+    res.status(StatusCodes.CREATED).json(newCard)
 
     await session.commitTransaction()
-    res.status(StatusCodes.CREATED).json(createdColumn)
   } catch (error) {
     await session.abortTransaction()
 
@@ -22,11 +23,11 @@ const createNew = async (req, res, next) => {
   }
 }
 
-const updateColumn = async (req, res, next) => {
+const updateCard = async (req, res, next) => {
   try {
     assert(req.params.id, 'req.params.id must exists')
-    const columnId = req.params.id
-    const result = columnServices.updateColumn(columnId, req.body)
+    const cardId = req.params.id
+    const result = await cardServices.updateCard(cardId, req.body)
 
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
@@ -34,7 +35,7 @@ const updateColumn = async (req, res, next) => {
   }
 }
 
-export const columnControllers = {
+export const cardControllers = {
   createNew,
-  updateColumn
+  updateCard
 }

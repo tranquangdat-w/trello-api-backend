@@ -1,6 +1,6 @@
 import Joi from 'joi'
 import env from '~/config/environment'
-import { GET_DB, GET_NEW_SESSION } from '~/config/mongodb'
+import { GET_DB } from '~/config/mongodb'
 import { boardModel } from './boardModel'
 import ApiErros from '~/utils/ApiErrors'
 import { StatusCodes } from 'http-status-codes'
@@ -10,7 +10,7 @@ const COLUMN_COLLECTION_NAME = env.COLUMN_COLLECTION_NAME
 
 const columnSchema = Joi.object({
   _id: Joi.string().guid({ version: 'uuidv4' }).default(() => uuidv4()),
-  cardsOrderIds: Joi.array()
+  cardOrderIds: Joi.array()
     .items(Joi.string().guid({ version: 'uuidv4' }))
     .default([]),
   title: Joi.string().required(),
@@ -19,55 +19,67 @@ const columnSchema = Joi.object({
   updatedAt: Joi.date().timestamp('javascript').default(null)
 })
 
-const createNew = async (columnDataInput) => {
+const createNew = async (columnDataInput, options) => {
   const { error, value } = columnSchema
     .validate(columnDataInput, { abortEarly: false })
 
   if (error) throw error
 
-  const session = GET_NEW_SESSION()
 
-  try {
-    session.startTransaction()
+  // Push columnId to columnsOrderIds
+  const result = await GET_DB()
+    .collection(boardModel.BOARD_COLLECTION_NAME)
+    .updateOne(
+      {
+        _id: value.boardId
+      },
+      {
+        $push: { columnOrderIds: value._id },
+        $set: { updateAt: value.createdAt }
+      },
+      {
+        ...options
+      }
+    )
 
-    // Push columnId to columnsOrderIds
-    const board = await GET_DB()
-      .collection(boardModel.BOARD_COLLECTION_NAME)
-      .updateOne(
-        {
-          _id: value.boardId
-        },
-        {
-          $push: { columnsOrderIds: value._id }
-        },
-        {
-          session
-        }
-      )
+  // If not found board with boardId throw new error
+  if (!result
+    || result.modifiedCount == 0
+    || result.matchedCount == 0) throw new ApiErros(
+    StatusCodes.NOT_FOUND,
+    `Not found board with boardId: ${columnDataInput.boardId}`)
 
-    // If not found board with boardId throw new error
-    if (!board || board.modifiedCount == 0) throw new ApiErros(
-      StatusCodes.NOT_FOUND,
-      `Not found board with boardId: ${columnDataInput.boardId}`)
+  await GET_DB()
+    .collection(COLUMN_COLLECTION_NAME)
+    .insertOne(value, { ...options })
 
-    await GET_DB()
-      .collection(COLUMN_COLLECTION_NAME)
-      .insertOne(value, { session })
 
-    await session.commitTransaction()
+  return value
+}
 
-    return value
-  } catch (error) {
-    await session.abortTransaction()
-    throw error
-  } finally {
-    await session.endSession()
-  }
+const updateColumn = async (columnId, updateColumnData, options) => {
+  const result = await GET_DB()
+    .collection(COLUMN_COLLECTION_NAME)
+    .updateOne(
+      {
+        _id: columnId
+      },
+      {
+        $set: updateColumnData
+      },
+      {
+        ...options
+      }
+
+    )
+
+  return result
 }
 
 export const columnModel = {
   COLUMN_COLLECTION_NAME: COLUMN_COLLECTION_NAME,
   columnSchema: columnSchema,
-  createNew
+  createNew,
+  updateColumn
 }
 

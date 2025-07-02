@@ -1,6 +1,9 @@
 import { StatusCodes } from 'http-status-codes'
 import assert from 'assert'
 import { boardService } from '~/services/boardServices'
+import { START_NEW_SESSION } from '~/config/mongodb'
+import { columnServices } from '~/services/columnServices'
+import { cardServices } from '~/services/cardServices'
 
 const createNew = async (req, res, next) => {
   try {
@@ -39,8 +42,70 @@ const getBoardDetails = async (req, res, next) => {
   }
 
 }
+
+const updateBoard = async (req, res, next) => {
+  try {
+    assert(req.params.id, 'request must has boardId')
+    const boardId = req.params.id
+    const result = await boardService.updateBoard(boardId, req.body)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const movingCard = async (req, res, next) => {
+  const session = START_NEW_SESSION()
+  try {
+    session.startTransaction()
+    const data = req.body
+
+    await columnServices.updateColumn(
+      data.prevColumnId,
+      {
+        cardOrderIds: data.prevCardOrderIds
+      },
+      {
+        session
+      }
+    )
+
+    await columnServices.updateColumn(
+      data.nextColumnId,
+      {
+        cardOrderIds: data.nextCardOrderIds
+      },
+      {
+        session
+      }
+    )
+
+    await cardServices.updateCard(
+      data.currentCardId,
+      {
+        columnId: data.nextColumnId
+      },
+      {
+        session
+      }
+    )
+
+    await session.commitTransaction()
+
+    res.status(StatusCodes.NO_CONTENT).send()
+  } catch (error) {
+    await session.abortTransaction()
+
+    next(error)
+  } finally {
+    await session.endSession()
+  }
+}
 export const boardController = {
   createNew,
   getAll,
-  getBoardDetails
+  getBoardDetails,
+  updateBoard,
+  movingCard
 }

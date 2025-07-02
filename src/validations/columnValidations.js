@@ -31,7 +31,39 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const updateColumn = async (req, res, next) => {
+  try {
+    if (Object.keys(req.body).length == 0) res.status(StatusCodes.OK).json({ 'message': 'Nothing update because req.body doesn\'t exists' })
+
+    const validUpdateColumnData = Joi.object({
+      title: Joi.string()
+        .messages({
+          'string.base': 'Title must be string',
+          'string.empty': 'Title is not allow to be empty'
+        }),
+      boardId: Joi.string().guid({ version: 'uuidv4' })
+        .messages({
+          'string.base': 'boardId must be string',
+          'string.guid': 'boardId is not valid'
+        }),
+      cardOrderIds: Joi.array()
+        .items(Joi.string().guid({ version: 'uuidv4' }))
+        .messages({
+          'string.base': 'cardId must be string',
+          'string.guid': 'cardId is not valid',
+          'array.base': 'columnOrderIds must be a array'
+        })
+    })
+
+    await validUpdateColumnData.validateAsync(req.body)
+    next()
+  } catch (error) {
+    next(new ApiErros(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
+  }
+}
+
 export const columnValidations = {
-  createNew
+  createNew,
+  updateColumn
 }
 

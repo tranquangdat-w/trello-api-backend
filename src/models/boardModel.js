@@ -14,7 +14,9 @@ const boardSchema = Joi.object({
   description: Joi.string().trim().strict(),
   slug: Joi.string().min(3).trim().strict().required()
     .pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  columnsOrderIds: Joi.array().items(Joi.string()).default([]),
+  columnOrderIds: Joi.array()
+    .items(Joi.string().guid({ version: 'uuidv4' }))
+    .default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   type: Joi.string().valid(...Object.values(BOARDTYPES)).required()
@@ -69,12 +71,26 @@ const getBoardDetails = async (id) => {
   return boardDetails
 }
 
+const updateBoard = async (boardId, boardData) => {
+  const result = await GET_DB().collection(BOARD_COLLECTION_NAME)
+    .updateOne({
+      _id: boardId
+    },
+    {
+      $set: boardData
+    })
+
+
+  return result
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   boardSchema,
   createNew,
   getAll,
   findOneById,
-  getBoardDetails
+  getBoardDetails,
+  updateBoard
 }
 

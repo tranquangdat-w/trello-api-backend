@@ -1,50 +1,77 @@
 import Joi from 'joi'
 import env from '~/config/environment'
+import { GET_DB } from '~/config/mongodb'
+import { columnModel } from './columnModel'
+import { v4 as uuidv4 } from 'uuid'
+import ApiErros from '~/utils/ApiErrors'
+import { StatusCodes } from 'http-status-codes'
 
 const CARD_COLLECTION_NAME = env.CARD_COLLECTION_NAME
 
 const cardSchema = Joi.object({
-  title: Joi
-    .string()
-    .alphanum()
-    .required()
-    .min(3)
-    .max(50)
-    .trim()
-    .strict(),
-  description: Joi
-    .string()
-    .alphanum()
-    .required()
-    .min(3)
-    .max(250)
-    .trim()
-    .strict(),
-  slug: Joi
-    .string()
-    .min(3)
-    .trim()
-    .strict()
-    .required(),
-  columnOrderIds: Joi
-    .array()
-    .items(Joi.string())
-    .default([]),
-  createdAt: Joi
-    .date()
-    .timestamp('javascript')
-    .default(Date.now()),
-  updatedAt: Joi
-    .date()
-    .timestamp('javascript')
-    .default(null),
-  _destroy: Joi
-    .boolean()
-    .default(false)
+  _id: Joi.string().guid({ version: 'uuidv4' }).default(() => uuidv4()),
+  boardId: Joi.string().required().guid({ version: 'uuidv4' }),
+  columnId: Joi.string().required().guid({ version: 'uuidv4' }),
+
+  title: Joi.string().required().min(3).max(50).trim().strict(),
+
+  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
+  updatedAt: Joi.date().timestamp('javascript').default(null)
 })
+
+const createNew = async (cardData, options) => {
+  const { error, value } = cardSchema
+    .validate(cardData, { abortEarly: false })
+
+  if (error) throw error
+
+  const result = await GET_DB()
+    .collection(columnModel.COLUMN_COLLECTION_NAME)
+    .updateOne(
+      {
+        _id: value.columnId
+      },
+      {
+        $push: { cardOrderIds: value._id },
+        $set: { updatedAt: value.createdAt }
+      },
+      {
+        ...options
+      }
+    )
+
+  // If not found board with boardId throw new error
+  if (!result || result.modifiedCount == 0) throw new ApiErros(
+    StatusCodes.NOT_FOUND,
+    `Not found column with columnId: ${cardData.boardId} to create card`)
+
+  await GET_DB().collection(CARD_COLLECTION_NAME)
+    .insertOne(value, { ...options })
+
+  return value
+}
+
+const updateCard = async (cardId, updateCardData, options) => {
+  const result = await GET_DB()
+    .collection(CARD_COLLECTION_NAME)
+    .updateOne(
+      {
+        _id: cardId
+      },
+      {
+        $set: updateCardData
+      },
+      {
+        ...options
+      }
+    )
+
+  return result
+}
 
 export const cardModel = {
   CARD_COLLECTION_NAME,
-  cardSchema
+  createNew,
+  updateCard
 }
 

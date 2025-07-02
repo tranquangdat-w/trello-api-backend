@@ -12,7 +12,9 @@ const START_SERVER = () => {
   const hostname = env.APP_HOST
   const port = env.APP_PORT
 
+  // Sử dụng để config cors
   app.use(corsConfiguration())
+
   app.use(express.json())
 
   // Use Apis V1
