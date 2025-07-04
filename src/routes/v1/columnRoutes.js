@@ -9,6 +9,7 @@ Router.route('/')
 
 Router.route('/:id')
   .put(columnValidations.updateColumn, columnControllers.updateColumn)
+  .delete(columnValidations.deleteColumn, columnControllers.deleteColumn)
 
 export const columnRouter = Router
 

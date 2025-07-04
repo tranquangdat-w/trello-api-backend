@@ -1,4 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
+import { boardModel } from '~/models/boardModel'
+import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 import ApiErros from '~/utils/ApiErrors'
 
@@ -19,7 +21,20 @@ const updateColumn = async (columnId, updateColumnData, options) => {
   return result
 }
 
+const deleteColumn = async (columnId, options) => {
+  await columnModel.deleteColumn(columnId, options)
+  await cardModel.deleteCardByColumnId(columnId, options)
+
+  const column = await columnModel.findOneById(columnId)
+  const boardId = column.boardId
+
+  await boardModel.pullColumnOrderIds(boardId, columnId, options)
+
+  return { message: 'Delete column successfully' }
+}
+
 export const columnServices = {
   createNew,
-  updateColumn
+  updateColumn,
+  deleteColumnById: deleteColumn
 }

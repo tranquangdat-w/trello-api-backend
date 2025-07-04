@@ -69,9 +69,22 @@ const updateCard = async (cardId, updateCardData, options) => {
   return result
 }
 
+const deleteCardByColumnId = async (columnId, options) => {
+  const result = await GET_DB()
+    .collection(CARD_COLLECTION_NAME)
+    .deleteMany({
+      columnId: columnId
+    },
+    {
+      ...options
+    })
+
+  return result
+}
 export const cardModel = {
   CARD_COLLECTION_NAME,
   createNew,
-  updateCard
+  updateCard,
+  deleteCardByColumnId
 }
 

@@ -76,10 +76,31 @@ const updateColumn = async (columnId, updateColumnData, options) => {
   return result
 }
 
+const deleteColumn = async (columnId, options) => {
+  const result = await GET_DB()
+    .collection(COLUMN_COLLECTION_NAME)
+    .deleteOne({
+      _id: columnId
+    },
+    {
+      ...options
+    })
+
+  return result
+}
+
+const findOneById = async (columnId) => {
+  return await GET_DB()
+    .collection(COLUMN_COLLECTION_NAME)
+    .findOne({ _id: columnId })
+}
+
 export const columnModel = {
   COLUMN_COLLECTION_NAME: COLUMN_COLLECTION_NAME,
   columnSchema: columnSchema,
   createNew,
-  updateColumn
+  updateColumn,
+  deleteColumn,
+  findOneById
 }
 

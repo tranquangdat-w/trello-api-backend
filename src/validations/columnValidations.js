@@ -62,8 +62,27 @@ const updateColumn = async (req, res, next) => {
   }
 }
 
+const deleteColumn = async (req, res, next) => {
+  const validColumnId = Joi.object({
+    id: Joi.string().guid({ version: 'uuidv4' }).required()
+      .messages({
+        'string.base': 'columnId must be string',
+        'any.required': 'columnId is requeired',
+        'string.guid': 'columnId is in valid format'
+      })
+  })
+
+  try {
+    await validColumnId.validateAsync(req.params)
+    next()
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const columnValidations = {
   createNew,
-  updateColumn
+  updateColumn,
+  deleteColumn
 }
 

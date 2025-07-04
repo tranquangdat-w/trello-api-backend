@@ -23,6 +23,7 @@ const updateCard = async (cardId, updateCardData, options) => {
 
   return result
 }
+
 export const cardServices = {
   createNew,
   updateCard

@@ -23,9 +23,13 @@ const boardSchema = Joi.object({
 })
 
 const createNew = async (boardData) => {
+  const { error, value } = boardSchema.validate(boardData, { abortEarly: false })
+
+  if (error) throw error
+
   const createdBoard = await GET_DB()
     .collection(BOARD_COLLECTION_NAME)
-    .insertOne(boardData)
+    .insertOne(value)
 
   return createdBoard
 }
@@ -80,10 +84,26 @@ const updateBoard = async (boardId, boardData) => {
       $set: boardData
     })
 
-
   return result
 }
 
+const pullColumnOrderIds = async (boardId, columnId, options) => {
+  const result = await GET_DB()
+    .collection(BOARD_COLLECTION_NAME)
+    .updateOne(
+      {
+        _id: boardId
+      },
+      {
+        $pull: { columnOrderIds: columnId }
+      },
+      {
+        ...options
+      }
+    )
+
+  return result
+}
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   boardSchema,
@@ -91,6 +111,7 @@ export const boardModel = {
   getAll,
   findOneById,
   getBoardDetails,
-  updateBoard
+  updateBoard,
+  pullColumnOrderIds
 }
 
