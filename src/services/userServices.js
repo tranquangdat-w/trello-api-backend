@@ -78,7 +78,8 @@ const login = async (loginData) => {
     _id: user._id,
     email: user.email,
     username: user.username,
-    role: user.role
+    role: user.role,
+    createdAt: user.createdAt
   }
 
   const accessToken = await JwtProvider.generateToken(
@@ -108,7 +109,8 @@ const refreshToken = async (req) => {
       _id: result._id,
       email: result.email,
       username: result.username,
-      role: result.role
+      role: result.role,
+      createdAt: result.createdAt
     }
 
     const newAccessToken = await JwtProvider.generateToken(
@@ -122,9 +124,39 @@ const refreshToken = async (req) => {
     throw new ApiErros(StatusCodes.FORBIDDEN, 'You need login again')
   }
 }
+
+const updatePassword = async (userId, passwordData) => {
+  if (passwordData.oldPassword === passwordData.newPassword) throw new
+  ApiErros(StatusCodes.BAD_REQUEST, 'New passowrd is same with old password')
+
+  const user = await UserModel.findOneById(userId)
+
+  if (!user) throw new
+  ApiErros(StatusCodes.NOT_FOUND, 'Not found userId in request to update password')
+
+  if (!user.isActive) throw new
+  ApiErros(StatusCodes.CONFLICT, 'Your account is not active')
+
+
+  if (!await argon2.verify(user.password, passwordData.oldPassword)) throw new
+  ApiErros(StatusCodes.BAD_REQUEST, 'Old Password is not correct!')
+
+  if (passwordData.newPassword !== passwordData.confirmPassword) throw new
+  ApiErros(StatusCodes.BAD_REQUEST, 'New passowrd and confirm passowrd is not match')
+
+  const hashedNewPassword = await argon2.hash(passwordData.newPassword)
+
+  const result = await UserModel.updateUser(
+    userId, { password: hashedNewPassword }
+  )
+
+  return result
+}
+
 export const userServices = {
   createNewAccount,
   verifyAccount,
   login,
-  refreshToken
+  refreshToken,
+  updatePassword
 }

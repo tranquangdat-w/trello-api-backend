@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { userServices } from '~/services/userServices'
 import ms from 'ms'
+import ApiErros from '~/utils/ApiErrors'
 
 const createNewAccount = async (req, res, next) => {
   try {
@@ -76,10 +77,26 @@ const refreshToken = async (req, res, next) => {
     next(error)
   }
 }
+
+const updatePassword = async (req, res, next) => {
+  try {
+    const userId = req?.jwtEncoded?._id
+    if (!userId) throw new
+    ApiErros(StatusCodes.NOT_FOUND, 'Not found userId in request to updatePassword')
+
+    await userServices.updatePassword(userId, req.body)
+
+    res.status(StatusCodes.OK).json({ message: 'Update password successfully!' })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userControllers = {
   createNewAccount,
   verifyAccount,
   login,
   logout,
-  refreshToken
+  refreshToken,
+  updatePassword
 }

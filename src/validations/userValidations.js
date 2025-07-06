@@ -93,9 +93,44 @@ const login = async (req, res, next) => {
   }
 }
 
+const updatePassword = async (req, res, next) => {
+  const updatePasswordDataValidation = Joi.object({
+    oldPassword: Joi.string().required().messages({
+      'string.base': 'Old Password must be string',
+      'any.required': 'Old Password is required'
+    }),
+    newPassword: Joi.string().required().min(8)
+      .pattern(new RegExp('^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*\(\)])'))
+      .messages({
+        'any.required': 'New password is required',
+        'string.base': 'New password must be string',
+        'string.min': 'New password has at least 8 character',
+        'string.pattern.base': 'New password must contains at least 1 alpha, 1 number, 1 special symbol',
+        'string.empty': 'New password must not be empty'
+      }),
+    confirmPassword: Joi.string().required().min(8)
+      .pattern(new RegExp('^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*\(\)])'))
+      .messages({
+        'any.required': 'New password is required',
+        'string.base': 'New password must be string',
+        'string.min': 'New password has at least 8 character',
+        'string.pattern.base': 'New password must contains at least 1 alpha, 1 number, 1 special symbol',
+        'string.empty': 'New password must not be empty'
+      })
+  })
+
+  try {
+    await updatePasswordDataValidation.validateAsync(req.body, { abortEarly: false })
+
+    next()
+  } catch (error) {
+    next(error)
+  }
+}
 export const userValidations = {
   createNewAccount,
   verifyAccount,
-  login
+  login,
+  updatePassword
 }
 
