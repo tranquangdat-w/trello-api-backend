@@ -7,16 +7,15 @@ import { APIs_V1 } from '~/routes/v1/index.js'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddlewares.js'
 import corsConfiguration from './config/cors.js'
 import cookieParser from 'cookie-parser'
+import nocache from 'nocache'
 
 const START_SERVER = () => {
   const app = express()
   const hostname = env.APP_HOST
   const port = env.APP_PORT
 
-  app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store')
-    next()
-  })
+  // disable cache
+  app.use(nocache())
 
   // Sử dụng để đọc được cookie
   app.use(cookieParser())

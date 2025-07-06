@@ -1,5 +1,6 @@
 import argon2 from 'argon2'
-import { StatusCodes } from 'http-status-codes'
+import { BAD_REQUEST, StatusCodes } from 'http-status-codes'
+import _ from 'lodash'
 import env from '~/config/environment'
 import { UserModel } from '~/models/userModel'
 import { JwtProvider } from '~/providers/JwtProvider'
@@ -125,32 +126,45 @@ const refreshToken = async (req) => {
   }
 }
 
-const updatePassword = async (userId, passwordData) => {
-  if (passwordData.oldPassword === passwordData.newPassword) throw new
-  ApiErros(StatusCodes.BAD_REQUEST, 'New passowrd is same with old password')
-
+const update = async (userId, updateData, avatarFile) => {
   const user = await UserModel.findOneById(userId)
 
   if (!user) throw new
   ApiErros(StatusCodes.NOT_FOUND, 'Not found userId in request to update password')
 
   if (!user.isActive) throw new
-  ApiErros(StatusCodes.CONFLICT, 'Your account is not active')
+  ApiErros(StatusCodes.CONFLICT, 'Account is not active')
 
+  let updatedUser = {}
 
-  if (!await argon2.verify(user.password, passwordData.oldPassword)) throw new
-  ApiErros(StatusCodes.BAD_REQUEST, 'Old Password is not correct!')
+  // Trường hợp update password
+  if (updateData.oldPassword && updateData.newPassword && updateData.confirmPassword) {
+    if (updateData.oldPassword === updateData.newPassword) throw new
+    ApiErros(StatusCodes.BAD_REQUEST, 'New passowrd is same with old password')
 
-  if (passwordData.newPassword !== passwordData.confirmPassword) throw new
-  ApiErros(StatusCodes.BAD_REQUEST, 'New passowrd and confirm passowrd is not match')
+    if (!await argon2.verify(user.password, updateData.oldPassword)) throw new
+    ApiErros(StatusCodes.BAD_REQUEST, 'Old Password is not correct!')
 
-  const hashedNewPassword = await argon2.hash(passwordData.newPassword)
+    if (updateData.newPassword !== updateData.confirmPassword) throw new
+    ApiErros(StatusCodes.BAD_REQUEST, 'New passowrd and confirm passowrd is not match')
 
-  const result = await UserModel.updateUser(
-    userId, { password: hashedNewPassword }
-  )
+    const hashedNewPassword = await argon2.hash(updateData.newPassword)
 
-  return result
+    updatedUser = await UserModel.updateUser(
+      userId, { password: hashedNewPassword }
+    )
+  } else if (avatarFile) {
+
+  } else {
+    // Không được tự ý update file password
+    if (updateData.password) {
+      throw new ApiErros(StatusCodes.BAD_REQUEST, 'Not allow update password')
+    }
+
+    updatedUser = await UserModel.updateUser(userId, updateData)
+  }
+
+  return picker.pickUserField(updatedUser)
 }
 
 export const userServices = {
@@ -158,5 +172,5 @@ export const userServices = {
   verifyAccount,
   login,
   refreshToken,
-  updatePassword
+  update
 }

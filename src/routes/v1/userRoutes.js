@@ -1,6 +1,7 @@
 import express from 'express'
 import { userControllers } from '~/controllers/userControllers'
 import { authMiddleware } from '~/middlewares/authJWTMiddleWares'
+import { multerUploadFileMiddleWare } from '~/middlewares/multerUploadMiddlewares'
 import { userServices } from '~/services/userServices'
 import { userValidations } from '~/validations/userValidations'
 
@@ -16,6 +17,13 @@ Router.get('/refresh_token', userControllers.refreshToken, userServices.refreshT
 
 Router.delete('/logout', userControllers.logout)
 
-Router.put('/change_password', authMiddleware.authAccessToken, userValidations.updatePassword, userControllers.updatePassword)
+Router.put(
+  '/update',
+  authMiddleware.authAccessToken,
+  multerUploadFileMiddleWare.uploadAvatar,
+  userValidations.update,
+  userControllers.update
+)
+
 
 export const userRoutes = Router

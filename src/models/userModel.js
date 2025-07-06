@@ -10,7 +10,7 @@ export const ROLES = {
   ADMIN: 'admin'
 }
 
-const allowUpdateField = ['verifyToken', 'updateAt', 'role', 'avatar', 'email', 'password', 'isActive']
+const allowUpdateField = ['verifyToken', 'updatedAt', 'role', 'avatar', 'email', 'password', 'isActive']
 
 const USER_COLLECTION_NAME = env.USER_COLLECTION_NAME
 const userSchemna = Joi.object({
@@ -65,7 +65,9 @@ const updateUser = async (userId, userData) => {
       $set: allowUserData
     })
 
-  return result
+  const updatedUser = await findOneById(userId)
+
+  return updatedUser
 }
 
 export const UserModel = {

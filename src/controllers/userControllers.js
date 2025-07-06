@@ -78,15 +78,17 @@ const refreshToken = async (req, res, next) => {
   }
 }
 
-const updatePassword = async (req, res, next) => {
+const update = async (req, res, next) => {
   try {
     const userId = req?.jwtEncoded?._id
+    const avatarFile = req.file
+
     if (!userId) throw new
     ApiErros(StatusCodes.NOT_FOUND, 'Not found userId in request to updatePassword')
 
-    await userServices.updatePassword(userId, req.body)
+    const updatedUser = await userServices.update(userId, req.body, avatarFile)
 
-    res.status(StatusCodes.OK).json({ message: 'Update password successfully!' })
+    res.status(StatusCodes.OK).json(updatedUser)
   } catch (error) {
     next(error)
   }
@@ -98,5 +100,5 @@ export const userControllers = {
   login,
   logout,
   refreshToken,
-  updatePassword
+  update
 }
