@@ -6,11 +6,20 @@ import { CLOSE_DB, CONNECT_DB } from './config/mongodb.js'
 import { APIs_V1 } from '~/routes/v1/index.js'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddlewares.js'
 import corsConfiguration from './config/cors.js'
+import cookieParser from 'cookie-parser'
 
 const START_SERVER = () => {
   const app = express()
   const hostname = env.APP_HOST
   const port = env.APP_PORT
+
+  app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+  })
+
+  // Sử dụng để đọc được cookie
+  app.use(cookieParser())
 
   // Sử dụng để config cors
   app.use(corsConfiguration())
@@ -35,7 +44,7 @@ const START_SERVER = () => {
 
 CONNECT_DB()
   .then('Connected to MongoDB Database')
-  .then(() => {START_SERVER()})
+  .then(() => { START_SERVER() })
   .catch((error) => {
     console.error(error)
     process.exit()

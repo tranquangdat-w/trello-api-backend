@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import Joi, { version } from 'joi'
+import Joi from 'joi'
 import ApiErros from '~/utils/ApiErrors'
 import { BOARDTYPES } from '~/utils/constrants'
 

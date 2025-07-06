@@ -29,7 +29,8 @@ const createNewAccount = async (registerData) => {
   const newUser = await UserModel.findOneById(result.insertedId)
 
   const subject = 'TRELLO-DATDZ: Verify your account to using our service'
-  const verificationLink = `${env.WEBSITE_DOMAIN_DEV}/users/verification?username=${newUser.username}&token=${newUser.verifyToken}`
+  const verificationLink = `${env.WEBSITE_DOMAIN_DEV}/users/verification?username=
+${newUser.username}&token=${newUser.verifyToken}`
 
   if (env.MODE === 'dev') {
     // eslint-disable-next-line no-console
@@ -48,7 +49,8 @@ const verifyAccount = async (verifyData) => {
 
   if (!user) throw new ApiErros(StatusCodes.NOT_FOUND, 'Username not found')
 
-  if (verifyData.token !== user.verifyToken) throw new ApiErros(StatusCodes.UNPROCESSABLE_ENTITY, 'Not valid token')
+  if (verifyData.token !== user.verifyToken) throw new
+  ApiErros(StatusCodes.UNPROCESSABLE_ENTITY, 'Not valid token')
 
   await UserModel.updateUser(user._id, {
     verifyToken: null,
@@ -63,12 +65,21 @@ const login = async (loginData) => {
 
   if (!user) throw new ApiErros(StatusCodes.NOT_FOUND, 'Username not found')
 
-  if (!user.isActive) throw new ApiErros(StatusCodes.NOT_ACCEPTABLE,
-    'Account doen\'t active, please check your mail to active account.')
+  if (!user.isActive) throw new
+  ApiErros(
+    StatusCodes.NOT_ACCEPTABLE,
+    'Account doen\'t active, please check your mail to active account.'
+  )
 
-  if (!await argon2.verify(user.password, loginData.password)) throw new ApiErros(StatusCodes.BAD_REQUEST, 'Password is not correct')
+  if (!await argon2.verify(user.password, loginData.password)) throw new
+  ApiErros(StatusCodes.BAD_REQUEST, 'Password is not correct')
 
-  const userInfo = { _id: user._id, email: user.email }
+  const userInfo = {
+    _id: user._id,
+    email: user.email,
+    username: user.username,
+    role: user.role
+  }
 
   const accessToken = await JwtProvider.generateToken(
     userInfo,
@@ -85,8 +96,35 @@ const login = async (loginData) => {
   return { accessToken, refreshToken, ...picker.pickUserField(user) }
 }
 
+const refreshToken = async (req) => {
+  const refreshToken = req.cookies?.refreshToken
+
+  if (!refreshToken) throw new ApiErros(StatusCodes.UNAUTHORIZED, 'You need login again')
+
+  try {
+    const result = await JwtProvider.verifyToken(refreshToken, env.REFRESH_TOKEN_SECRET_KEY)
+
+    const userInfo = {
+      _id: result._id,
+      email: result.email,
+      username: result.username,
+      role: result.role
+    }
+
+    const newAccessToken = await JwtProvider.generateToken(
+      userInfo,
+      env.ACCESS_TOKEN_SECRET_KEY,
+      env.ACCESS_TOKEN_TIME_LIFE
+    )
+
+    return newAccessToken
+  } catch (error) {
+    throw new ApiErros(StatusCodes.FORBIDDEN, 'You need login again')
+  }
+}
 export const userServices = {
   createNewAccount,
   verifyAccount,
-  login
+  login,
+  refreshToken
 }
