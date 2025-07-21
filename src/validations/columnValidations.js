@@ -33,7 +33,8 @@ const createNew = async (req, res, next) => {
 
 const updateColumn = async (req, res, next) => {
   try {
-    if (Object.keys(req.body).length == 0) res.status(StatusCodes.OK).json({ 'message': 'Nothing update because req.body doesn\'t exists' })
+    if (Object.keys(req.body).length == 0) res.status(StatusCodes.OK)
+      .json({ 'message': 'Nothing update because req.body doesn\'t exists' })
 
     const validUpdateColumnData = Joi.object({
       title: Joi.string()

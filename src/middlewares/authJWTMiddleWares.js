@@ -4,7 +4,7 @@ import env from '~/config/environment.js'
 import { JwtProvider } from '~/providers/JwtProvider'
 import ApiErros from '~/utils/ApiErrors.js'
 
-const authAccessToken = async (req, res, next) => {
+const authAccessToken = async (req, _res, next) => {
   const accessToken = req.cookies?.accessToken
 
   if (!accessToken) {
@@ -34,9 +34,6 @@ const authAccessToken = async (req, res, next) => {
     next(new ApiErros(StatusCodes.UNAUTHORIZED,
       'Your login session is expired, please login again'))
   }
-}
-
-const authRefreshToken = async (req, res, next) => {
 }
 
 export const authMiddleware = {

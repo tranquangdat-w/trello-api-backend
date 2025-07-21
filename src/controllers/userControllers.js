@@ -50,7 +50,7 @@ const login = async (req, res, next) => {
   }
 }
 
-const logout = async (req, res, next) => {
+const logout = async (_req, res, next) => {
   try {
     res.clearCookie('accessToken')
     res.clearCookie('refreshToken')
@@ -81,7 +81,7 @@ const refreshToken = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const userId = req?.jwtEncoded?._id
-    const avatarFile = req.file
+    const avatarFile = req?.file
 
     if (!userId) throw new
     ApiErros(StatusCodes.NOT_FOUND, 'Not found userId in request to updatePassword')

@@ -1,8 +1,8 @@
 import argon2 from 'argon2'
-import { BAD_REQUEST, StatusCodes } from 'http-status-codes'
-import _ from 'lodash'
+import { StatusCodes } from 'http-status-codes'
 import env from '~/config/environment'
 import { UserModel } from '~/models/userModel'
+import { cloudinaryProvider } from '~/providers/cloudinaryProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { resendProvider } from '~/providers/sendMailProvider'
 import ApiErros from '~/utils/ApiErrors'
@@ -154,13 +154,24 @@ const update = async (userId, updateData, avatarFile) => {
       userId, { password: hashedNewPassword }
     )
   } else if (avatarFile) {
+    // pass
+    const uploadResult = await cloudinaryProvider.uploadImage(avatarFile.buffer, 'user')
 
+    const url = uploadResult.secure_url
+
+    const userUpdatedAvatar = UserModel.updateUser(userId, {
+      avatar: url
+    })
+
+    return userUpdatedAvatar
   } else {
-    // Không được tự ý update file password
+    // Không được tự ý update password ở đây
+    // Chỉ có thể tuân theo logic phía trên
     if (updateData.password) {
-      throw new ApiErros(StatusCodes.BAD_REQUEST, 'Not allow update password')
+      throw new ApiErros(StatusCodes.BAD_REQUEST, 'Not allow update password with password filed!')
     }
 
+    // Update các dữ liệu khác của user
     updatedUser = await UserModel.updateUser(userId, updateData)
   }
 

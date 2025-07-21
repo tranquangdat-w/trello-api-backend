@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { StatusCodes } from 'http-status-codes'
 import multer from 'multer'
 import ApiErros from '~/utils/ApiErrors'
@@ -9,27 +8,31 @@ const ALLOW_COMMON_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 
 // Nếu mà sử dụng cb trong multer thì nó sẽ dừng luôn.
 const upload = multer({
-  fileFilter: (re, file, cb) => {
+  fileFilter: (_res, file, cb) => {
     // Phải cho nó đi qua thì nó mới bắt lỗi được ở upadloadAvatar
     if (!ALLOW_COMMON_FILE_TYPES.includes(file.mimetype)) {
       cb(new ApiErros(StatusCodes.UNPROCESSABLE_ENTITY, 'Invalid file type, support jpg, jpeg or png.'))
     }
 
+    // Cho no di qua
     cb(null, true)
   },
   limits: {
     fileSize: LIMIT_COMMON_FILE_SIZE
   }
-}).single('avatar')
+})
+
+const uploadSingleFile = upload.single('avatar')
 
 const uploadAvatar = async (req, res, next) => {
-  upload(req, res, (error) => {
+  uploadSingleFile(req, res, (error) => {
     if (error instanceof multer.MulterError) {
       if (error.code === 'LIMIT_FILE_SIZE') {
         next(new ApiErros(StatusCodes.UNPROCESSABLE_ENTITY,
           'File too large, support less than 10 mb'))
       }
     } else if (error) {
+      // Loi khac
       next(error)
     }
 
@@ -41,3 +44,4 @@ const uploadAvatar = async (req, res, next) => {
 export const multerUploadFileMiddleWare = {
   uploadAvatar
 }
+

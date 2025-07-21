@@ -3,7 +3,7 @@ import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiErros from '~/utils/ApiErrors'
 
-const createNewAccount = async (req, res, next) => {
+const createNewAccount = async (req, _res, next) => {
   const correctCondition = Joi.object({
     username: Joi.string().required().strict().trim().messages({
       'any.required': 'Username is required',
@@ -45,7 +45,7 @@ const createNewAccount = async (req, res, next) => {
   }
 }
 
-const verifyAccount = async (req, res, next) => {
+const verifyAccount = async (req, _res, next) => {
   const verifyAccountDataValidation = Joi.object({
     username: Joi.string().required().trim().strict().messages({
       'string.base': 'Username must be a string',
@@ -71,7 +71,7 @@ const verifyAccount = async (req, res, next) => {
 }
 
 
-const login = async (req, res, next) => {
+const login = async (req, _res, next) => {
   const loginDataValidation = Joi.object({
     username: Joi.string().required().trim().strict().messages({
       'string.base': 'Username must be a string',
@@ -93,7 +93,7 @@ const login = async (req, res, next) => {
   }
 }
 
-const update = async (req, res, next) => {
+const update = async (req, _res, next) => {
   const updatePasswordDataValidation = Joi.object({
     oldPassword: Joi.string().messages({
       'string.base': 'Old Password must be string'

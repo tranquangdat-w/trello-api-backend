@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary'
 import env from '~/config/environment'
-import streamifier from 'streamifier'
 
 cloudinary.config({
   cloud_name: env.CLOUDINARY_NAME,
@@ -8,3 +7,20 @@ cloudinary.config({
   api_secret: env.CLOUDINARY_API_SECRET
 })
 
+const uploadImage = async (imageBuffer, folder) => {
+  return new Promise((resolve) => {
+    cloudinary.uploader
+      .upload_chunked_stream({ folder: folder }, (error, uploadResult) => {
+        if (error) {
+          throw new Error('Failed to upload image')
+        }
+
+        resolve(uploadResult)
+      })
+      .end(imageBuffer)
+  })
+}
+
+export const cloudinaryProvider = {
+  uploadImage
+}

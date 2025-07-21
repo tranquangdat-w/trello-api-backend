@@ -10,9 +10,10 @@ import cookieParser from 'cookie-parser'
 import nocache from 'nocache'
 
 const START_SERVER = () => {
-  const app = express()
   const hostname = env.APP_HOST
   const port = env.APP_PORT
+
+  const app = express()
 
   // disable cache
   app.use(nocache())
