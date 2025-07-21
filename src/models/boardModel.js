@@ -17,6 +17,10 @@ const boardSchema = Joi.object({
   columnOrderIds: Joi.array()
     .items(Joi.string().guid({ version: 'uuidv4' }))
     .default([]),
+  memberIds: Joi.array()
+    .items(Joi.string().guid({ version: 'uuidv4' })),
+  ownerIds: Joi.array()
+    .items(Joi.string().guid({ version: 'uuidv4' })),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   type: Joi.string().valid(...Object.values(BOARDTYPES)).required()
@@ -34,12 +38,34 @@ const createNew = async (boardData) => {
   return createdBoard
 }
 
-const getAll = async () => {
-  const listBoards = await GET_DB()
+const getBoards = async (userId, page, nBoardPerPage) => {
+  const result = GET_DB()
     .collection(BOARD_COLLECTION_NAME)
-    .find({}).toArray()
+    .aggregate([
+      {
+        $match: {
+          $or: [
+          {} 
+            // { memberIds: userId },
+            // { ownerIds: userId }
+          ]
+        }
+      },
+      {
+        $sort: { createdAt: 1 }
+      },
+      {
+        $facet: {
+          metadata: [{ $count: 'totalCount' }],
+          boardData: [
+            { $skip: (page - 1) * nBoardPerPage },
+            { $limit: nBoardPerPage }
+          ]
+        }
+      }
+    ]).next()
 
-  return listBoards
+  return result
 }
 
 const findOneById = async (id) => {
@@ -108,7 +134,7 @@ export const boardModel = {
   BOARD_COLLECTION_NAME,
   boardSchema,
   createNew,
-  getAll,
+  getBoards,
   findOneById,
   getBoardDetails,
   updateBoard,

@@ -103,8 +103,31 @@ const movingCard = async (req, res, next) => {
     next(error)
   }
 }
+
+const getBoards = async (req, rest, next) => {
+  try {
+    const validPaginationBoards = Joi.object({
+      page: Joi.number().integer().min(1).messages({
+        'number.base': 'Page must be number',
+        'number.integer': 'Page must be integer',
+        'number.min': 'Page must >= 1'
+      }),
+      nBoardPerPage: Joi.number().integer().min(1).messages({
+        'number.base': 'N board per page must be number',
+        'number.integer': 'N board per page must be integer',
+        'number.min': 'N board per page must >= 1'
+      })
+    })
+
+    await validPaginationBoards.validateAsync(req.query, { abortEarly: false })
+    next()
+  } catch (error) {
+    next(error)
+  }
+}
 export const boardValidation = {
   createNew,
   updateBoard,
-  movingCard
+  movingCard,
+  getBoards
 }

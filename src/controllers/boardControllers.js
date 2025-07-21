@@ -4,6 +4,8 @@ import { boardService } from '~/services/boardServices'
 import { START_NEW_SESSION } from '~/config/mongodb'
 import { columnServices } from '~/services/columnServices'
 import { cardServices } from '~/services/cardServices'
+import { N_BOARD_PER_PAGE_DEFAULT, PAGE_DEFAULT } from '~/utils/constrants'
+import { parseInt } from 'lodash'
 
 const createNew = async (req, res, next) => {
   try {
@@ -18,9 +20,18 @@ const createNew = async (req, res, next) => {
   }
 }
 
-const getAll = async (req, res, next) => {
+const getBoards = async (req, res, next) => {
   try {
-    const listBoard = await boardService.getAll()
+    const userId = req.jwtEncoded._id
+
+    const page = req.query?.page || PAGE_DEFAULT
+    const nBoardPerPage = req.query?.nBoardPerPage || N_BOARD_PER_PAGE_DEFAULT
+
+    const listBoard = await boardService.getBoards(
+      userId,
+      parseInt(page),
+      parseInt(nBoardPerPage)
+    )
 
     res.status(StatusCodes.OK).json(listBoard)
   } catch (error) {
@@ -104,7 +115,7 @@ const movingCard = async (req, res, next) => {
 }
 export const boardController = {
   createNew,
-  getAll,
+  getBoards,
   getBoardDetails,
   updateBoard,
   movingCard

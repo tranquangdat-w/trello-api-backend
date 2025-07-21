@@ -5,10 +5,10 @@ import { boardValidation } from '~/validations/boardValidations.js'
 
 const Router = express.Router()
 
-Router.use(authMiddleware.authAccessToken)
+Router.use(authMiddleware.isAuthorized)
 
 Router.route('/')
-  .get(boardController.getAll)
+  .get(boardValidation.getBoards, boardController.getBoards)
 
   .post(boardValidation.createNew, boardController.createNew)
 

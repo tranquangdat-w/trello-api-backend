@@ -19,7 +19,7 @@ Router.delete('/logout', userControllers.logout)
 
 Router.put(
   '/update',
-  authMiddleware.authAccessToken,
+  authMiddleware.isAuthorized,
   multerUploadFileMiddleWare.uploadAvatar,
   userValidations.update,
   userControllers.update

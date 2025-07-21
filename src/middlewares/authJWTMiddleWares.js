@@ -4,7 +4,7 @@ import env from '~/config/environment.js'
 import { JwtProvider } from '~/providers/JwtProvider'
 import ApiErros from '~/utils/ApiErrors.js'
 
-const authAccessToken = async (req, _res, next) => {
+const isAuthorized = async (req, _res, next) => {
   const accessToken = req.cookies?.accessToken
 
   if (!accessToken) {
@@ -37,5 +37,5 @@ const authAccessToken = async (req, _res, next) => {
 }
 
 export const authMiddleware = {
-  authAccessToken
+  isAuthorized
 }

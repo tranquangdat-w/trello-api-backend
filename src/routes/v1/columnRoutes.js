@@ -5,7 +5,7 @@ import { columnValidations } from '~/validations/columnValidations'
 
 const Router = express.Router()
 
-Router.use(authMiddleware.authAccessToken)
+Router.use(authMiddleware.isAuthorized)
 
 Router.route('/')
   .post(

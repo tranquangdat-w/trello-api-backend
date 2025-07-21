@@ -5,7 +5,7 @@ import { cardValidations } from '~/validations/cardValidations'
 
 const Router = express.Router()
 
-Router.use(authMiddleware.authAccessToken)
+Router.use(authMiddleware.isAuthorized)
 
 Router.route('/')
   .post(

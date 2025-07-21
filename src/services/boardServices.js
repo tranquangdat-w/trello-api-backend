@@ -21,10 +21,10 @@ const createNew = async (reqBody) => {
   return createdBoard
 }
 
-const getAll = async () => {
-  const listAllBoards = await boardModel.getAll()
+const getBoards = async (userId, page, nBoardPerPage) => {
+  const listBoards = await boardModel.getBoards(userId, page, nBoardPerPage)
 
-  return listAllBoards
+  return listBoards
 }
 
 const findOneById = async (id) => {
@@ -74,7 +74,7 @@ const updateBoard = async (boardId, boardData) => {
 
 export const boardService = {
   createNew,
-  getAll,
+  getBoards,
   findOneById,
   getBoardDetails,
   updateBoard
