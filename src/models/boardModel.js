@@ -11,7 +11,7 @@ const BOARD_COLLECTION_NAME = env.BOARD_COLLECTION_NAME
 const boardSchema = Joi.object({
   _id: Joi.string().guid({ version: 'uuidv4' }).default(() => uuidv4()),
   title: Joi.string().required().min(3).max(50).trim().strict(),
-  description: Joi.string().trim().strict(),
+  description: Joi.string().trim(),
   slug: Joi.string().min(3).trim().strict().required()
     .pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   columnOrderIds: Joi.array()
@@ -21,21 +21,17 @@ const boardSchema = Joi.object({
     .items(Joi.string().guid({ version: 'uuidv4' })),
   ownerIds: Joi.array()
     .items(Joi.string().guid({ version: 'uuidv4' })),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(() => Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   type: Joi.string().valid(...Object.values(BOARDTYPES)).required()
 })
 
 const createNew = async (boardData) => {
-  const { error, value } = boardSchema.validate(boardData, { abortEarly: false })
-
-  if (error) throw error
-
-  const createdBoard = await GET_DB()
+  const result = await GET_DB()
     .collection(BOARD_COLLECTION_NAME)
-    .insertOne(value)
+    .insertOne(boardData)
 
-  return createdBoard
+  return result
 }
 
 const getBoards = async (userId, page, nBoardPerPage) => {
@@ -45,14 +41,13 @@ const getBoards = async (userId, page, nBoardPerPage) => {
       {
         $match: {
           $or: [
-          {} 
-            // { memberIds: userId },
-            // { ownerIds: userId }
+            { memberIds: userId },
+            { ownerIds: userId }
           ]
         }
       },
       {
-        $sort: { createdAt: 1 }
+        $sort: { createdAt: -1 }
       },
       {
         $facet: {

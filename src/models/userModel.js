@@ -25,7 +25,7 @@ const userSchemna = Joi.object({
   verifyToken: Joi.string().guid({ version: 'uuidv4' }).default(() => uuidv4()),
   isActive: Joi.boolean().default(false),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(() => Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null)
 
 })

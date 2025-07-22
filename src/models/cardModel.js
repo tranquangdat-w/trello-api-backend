@@ -15,7 +15,7 @@ const cardSchema = Joi.object({
 
   title: Joi.string().required().min(3).max(50).trim().strict(),
 
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(() => Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null)
 })
 

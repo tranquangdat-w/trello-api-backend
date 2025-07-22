@@ -15,7 +15,7 @@ const columnSchema = Joi.object({
     .default([]),
   title: Joi.string().required(),
   boardId: Joi.string().required().guid({ version: 'uuidv4' }),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(() => Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null)
 })
 
@@ -70,7 +70,6 @@ const updateColumn = async (columnId, updateColumnData, options) => {
       {
         ...options
       }
-
     )
 
   return result

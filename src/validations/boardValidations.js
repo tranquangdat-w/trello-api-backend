@@ -14,14 +14,12 @@ const createNew = async (req, res, next) => {
         'string.trim': 'Title must not have leading or trailling whitespace',
         'any.strict': 'Invalid title format'
       }),
-    description: Joi.string().required().min(3).max(250).trim().strict()
+    description: Joi.string().max(250).trim().empty()
       .messages({
         'string.base': 'Description must be a string',
-        'any.required': 'Description is required',
-        'string.min': 'Description must be at least 3 characters long',
         'string.max': 'Description cannot exceed 250 characters',
         'string.trim': 'Description must not have leading or trailing whitespace',
-        'any.strict': 'Invalid description format'
+        'string.empty': 'Description is not allow empty, if dont want it please remove this file'
       }),
     type: Joi.string().valid(...Object.values(BOARDTYPES)).required()
       .messages({
@@ -56,10 +54,9 @@ export const updateBoard = async (req, res, next) => {
           'string.trim': 'Title must not have leading or trailling whitespace',
           'any.strict': 'Invalid title format'
         }),
-      description: Joi.string().min(3).max(250).trim().strict()
+      description: Joi.string().max(250).trim().strict()
         .messages({
           'string.base': 'Description must be a string',
-          'string.min': 'Description must be at least 3 characters long',
           'string.max': 'Description cannot exceed 250 characters',
           'string.trim': 'Description must not have leading or trailing whitespace',
           'any.strict': 'Invalid description format'

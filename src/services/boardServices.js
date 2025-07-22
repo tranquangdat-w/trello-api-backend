@@ -1,24 +1,23 @@
-import assert from 'assert'
 import { StatusCodes } from 'http-status-codes'
 import slug from 'slug'
 import { boardModel } from '~/models/boardModel'
 import ApiErros from '~/utils/ApiErrors'
 
-const createNew = async (reqBody) => {
-  assert(reqBody.title, 'reqBody must have title')
-
+const createNew = async (userId, reqBody) => {
   const rawBoardData = {
     ...reqBody,
-    slug: slug(reqBody.title)
+    slug: slug(reqBody.title),
+    memberIds: [userId],
+    ownerIds: [userId]
   }
 
   const { error, value } = boardModel.boardSchema.validate(rawBoardData, { abortEarly : false })
 
   if (error) throw error
 
-  const createdBoard = await boardModel.createNew(value)
+  const result = await boardModel.createNew(value)
 
-  return createdBoard
+  return result
 }
 
 const getBoards = async (userId, page, nBoardPerPage) => {

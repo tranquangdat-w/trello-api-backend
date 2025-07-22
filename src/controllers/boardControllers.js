@@ -10,7 +10,8 @@ import { parseInt } from 'lodash'
 const createNew = async (req, res, next) => {
   try {
     assert(req.body, 'req for create board must have body')
-    const createdBoard = await boardService.createNew(req.body)
+    const userId = req.jwtEncoded._id
+    const createdBoard = await boardService.createNew(userId, req.body)
 
     res.status(StatusCodes.CREATED).json({
       createdBoard
