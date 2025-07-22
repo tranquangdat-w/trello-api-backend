@@ -1,5 +1,4 @@
 import env from './environment.js'
-import assert from 'assert'
 import { MongoClient, ServerApiVersion } from 'mongodb'
 
 const MONGO_URI = env.MONGODB_URI

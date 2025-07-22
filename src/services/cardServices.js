@@ -24,7 +24,14 @@ const updateCard = async (cardId, updateCardData, options) => {
   return result
 }
 
+const deleteCard = async (cardId) => {
+  await cardModel.deleteCardById(cardId)
+
+  return { message: 'Delete card successfully' }
+}
+
 export const cardServices = {
   createNew,
-  updateCard
+  updateCard,
+  deleteCard
 }

@@ -11,7 +11,7 @@ const createNew = async (req, res, next) => {
         'string.base': 'Title must be string',
         'any.required': 'Title is requeired',
         'string.empty': 'Title is not allow to be empty'
-      }),
+      }).trim(),
     boardId: Joi
       .string()
       .required()
@@ -41,7 +41,7 @@ const updateColumn = async (req, res, next) => {
         .messages({
           'string.base': 'Title must be string',
           'string.empty': 'Title is not allow to be empty'
-        }),
+        }).trim(),
       boardId: Joi.string().guid({ version: 'uuidv4' })
         .messages({
           'string.base': 'boardId must be string',

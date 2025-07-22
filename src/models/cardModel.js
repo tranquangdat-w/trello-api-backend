@@ -81,10 +81,21 @@ const deleteCardByColumnId = async (columnId, options) => {
 
   return result
 }
+
+const deleteCardById = async (cardId) => {
+  const result = await GET_DB()
+    .collection(CARD_COLLECTION_NAME)
+    .deleteOne({
+      _id: cardId
+    })
+
+  return result
+}
 export const cardModel = {
   CARD_COLLECTION_NAME,
   createNew,
   updateCard,
-  deleteCardByColumnId
+  deleteCardByColumnId,
+  deleteCardById
 }
 

@@ -19,4 +19,9 @@ Router.route('/:id')
     cardControllers.updateCard
   )
 
+  .delete(
+    cardValidations.deleteCard,
+    cardControllers.deleteCard
+  )
+
 export const cardRouters = Router

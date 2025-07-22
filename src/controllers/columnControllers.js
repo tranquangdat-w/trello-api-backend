@@ -2,8 +2,6 @@ import { StatusCodes } from 'http-status-codes'
 import { columnServices } from '~/services/columnServices'
 import assert from 'assert'
 import { START_NEW_SESSION } from '~/config/mongodb'
-import { cardServices } from '~/services/cardServices'
-import { boardService } from '~/services/boardServices'
 
 const createNew = async (req, res, next) => {
   const session = START_NEW_SESSION()

@@ -51,14 +51,32 @@ const updateCard = async (req, res, next) => {
         })
     })
 
-    await validUpdateCardData.validateAsync(req.body)
+    await validUpdateCardData.validateAsync(req.body, { abortEarly: false })
     next()
   } catch (error) {
     next(new ApiErros(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
   }
 }
 
+const deleteCard = async (req, _res, next) => {
+  try {
+    const validDeleteCard = Joi.object({
+      id: Joi.string().guid({ version: 'uuidv4' })
+        .messages({
+          'string.base': 'cardId must be string',
+          'string.guid': 'cardId is not valid'
+        })
+    })
+
+    await validDeleteCard.validateAsync(req.params)
+    next()
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const cardValidations = {
   createNew,
-  updateCard
+  updateCard,
+  deleteCard
 }
