@@ -1,3 +1,7 @@
+export const LIMIT_COMMON_FILE_SIZE = 10485760 // 10 mb
+
+export const ALLOW_COMMON_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
+
 export const BOARDTYPES = {
   PUBLIC: 'public',
   PRIVATE: 'private'

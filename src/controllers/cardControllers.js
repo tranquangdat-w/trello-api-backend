@@ -26,8 +26,11 @@ const createNew = async (req, res, next) => {
 const updateCard = async (req, res, next) => {
   try {
     assert(req.params.id, 'req.params.id must exists')
+
+    const cover = req?.file
     const cardId = req.params.id
-    const result = await cardServices.updateCard(cardId, req.body)
+
+    const result = await cardServices.updateCard(cardId, req.body, null, cover)
 
     res.status(StatusCodes.OK).json(result)
   } catch (error) {

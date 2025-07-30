@@ -12,7 +12,7 @@ const uploadImage = async (imageBuffer, folder) => {
     cloudinary.uploader
       .upload_chunked_stream({ folder: folder }, (error, uploadResult) => {
         if (error) {
-          throw new Error('Failed to upload image')
+          throw new Error('Failed to upload image with message: ')
         }
 
         resolve(uploadResult)

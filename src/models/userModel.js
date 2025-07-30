@@ -57,7 +57,7 @@ const findOneById = async (userId) => {
 const updateUser = async (userId, userData) => {
   const allowUserData = _.pick(userData, allowUpdateField)
 
-  const result = await GET_DB().collection(USER_COLLECTION_NAME)
+  await GET_DB().collection(USER_COLLECTION_NAME)
     .updateOne({
       _id: userId
     },

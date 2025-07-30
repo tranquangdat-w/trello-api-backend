@@ -5,7 +5,7 @@
   "author": "tran quang dat",
   "license": "MIT",
   "scripts": {
-    "dev": "cross-env MODE=dev nodemon --exec babel-node ./src/server.js"
+    "dev": "cross-env MODE=dev nodemon --inspect --exec babel-node ./src/server.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.22.10",

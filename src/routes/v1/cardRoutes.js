@@ -1,6 +1,7 @@
 import express from 'express'
 import { cardControllers } from '~/controllers/cardControllers'
 import { authMiddleware } from '~/middlewares/authJWTMiddleWares'
+import { multerUploadFileMiddleWare } from '~/middlewares/multerUploadMiddlewares'
 import { cardValidations } from '~/validations/cardValidations'
 
 const Router = express.Router()
@@ -16,6 +17,7 @@ Router.route('/')
 Router.route('/:id')
   .put(
     cardValidations.updateCard,
+    multerUploadFileMiddleWare.uploadAvatar,
     cardControllers.updateCard
   )
 

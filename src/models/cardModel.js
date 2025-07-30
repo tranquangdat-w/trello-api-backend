@@ -15,6 +15,8 @@ const cardSchema = Joi.object({
 
   title: Joi.string().required().min(3).max(50).trim().strict(),
 
+  cover: Joi.string().default(null),
+
   createdAt: Joi.date().timestamp('javascript').default(() => Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null)
 })
@@ -91,11 +93,19 @@ const deleteCardById = async (cardId) => {
 
   return result
 }
+
+const findOneById = async (cardId) => {
+  return await GET_DB()
+    .collection(CARD_COLLECTION_NAME)
+    .findOne({ _id: cardId })
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   createNew,
   updateCard,
   deleteCardByColumnId,
-  deleteCardById
+  deleteCardById,
+  findOneById
 }
 

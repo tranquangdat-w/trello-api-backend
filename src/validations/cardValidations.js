@@ -25,7 +25,7 @@ const validCardData = Joi.object({
     })
 })
 
-const createNew = async (req, res, next) => {
+const createNew = async (req, _, next) => {
   try {
     await validCardData.validateAsync(req.body, { abortEarly: false })
     next()
@@ -36,8 +36,6 @@ const createNew = async (req, res, next) => {
 
 const updateCard = async (req, res, next) => {
   try {
-    if (Object.keys(req.body).length == 0) res.status(StatusCodes.OK).json({ 'message': 'Nothing update because req.body doesn\'t exists' })
-
     const validUpdateCardData = Joi.object({
       title: Joi.string()
         .messages({

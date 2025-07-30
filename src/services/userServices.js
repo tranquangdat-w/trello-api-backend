@@ -1,7 +1,7 @@
 import argon2 from 'argon2'
 import { StatusCodes } from 'http-status-codes'
 import env from '~/config/environment'
-import { UserModel } from '~/models/userModel'
+import { UserModel as userModel } from '~/models/userModel'
 import { cloudinaryProvider } from '~/providers/cloudinaryProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { resendProvider } from '~/providers/sendMailProvider'
@@ -18,7 +18,7 @@ const createNewAccount = async (registerData) => {
 
   delete registerData.confirmPassword
 
-  const existsUser = await UserModel.findOneByUsername(username)
+  const existsUser = await userModel.findOneByUsername(username)
 
   if (existsUser) throw new ApiErros(StatusCodes.UNPROCESSABLE_ENTITY, 'Username is exists')
 
@@ -26,8 +26,8 @@ const createNewAccount = async (registerData) => {
 
   registerData.password = hashedPassword
 
-  const result = await UserModel.createNewAccount(registerData)
-  const newUser = await UserModel.findOneById(result.insertedId)
+  const result = await userModel.createNewAccount(registerData)
+  const newUser = await userModel.findOneById(result.insertedId)
 
   const subject = 'TRELLO-DATDZ: Verify your account to using our service'
   const verificationLink = `${env.WEBSITE_DOMAIN_DEV}/users/verification?username=
@@ -46,14 +46,14 @@ ${newUser.username}&token=${newUser.verifyToken}`
 }
 
 const verifyAccount = async (verifyData) => {
-  const user = await UserModel.findOneByUsername(verifyData.username)
+  const user = await userModel.findOneByUsername(verifyData.username)
 
   if (!user) throw new ApiErros(StatusCodes.NOT_FOUND, 'Username not found')
 
   if (verifyData.token !== user.verifyToken) throw new
   ApiErros(StatusCodes.UNPROCESSABLE_ENTITY, 'Not valid token')
 
-  await UserModel.updateUser(user._id, {
+  await userModel.updateUser(user._id, {
     verifyToken: null,
     isActive: true
   })
@@ -62,7 +62,7 @@ const verifyAccount = async (verifyData) => {
 }
 
 const login = async (loginData) => {
-  const user = await UserModel.findOneByUsername(loginData.username)
+  const user = await userModel.findOneByUsername(loginData.username)
 
   if (!user) throw new ApiErros(StatusCodes.NOT_FOUND, 'Username not found')
 
@@ -127,7 +127,7 @@ const refreshToken = async (req) => {
 }
 
 const update = async (userId, updateData, avatarFile) => {
-  const user = await UserModel.findOneById(userId)
+  const user = await userModel.findOneById(userId)
 
   if (!user) throw new
   ApiErros(StatusCodes.NOT_FOUND, 'Not found userId in request to update password')
@@ -150,7 +150,7 @@ const update = async (userId, updateData, avatarFile) => {
 
     const hashedNewPassword = await argon2.hash(updateData.newPassword)
 
-    updatedUser = await UserModel.updateUser(
+    updatedUser = await userModel.updateUser(
       userId, { password: hashedNewPassword }
     )
   } else if (avatarFile) {
@@ -159,7 +159,7 @@ const update = async (userId, updateData, avatarFile) => {
 
     const url = uploadResult.secure_url
 
-    const userUpdatedAvatar = UserModel.updateUser(userId, {
+    const userUpdatedAvatar = await userModel.updateUser(userId, {
       avatar: url
     })
 
@@ -172,7 +172,7 @@ const update = async (userId, updateData, avatarFile) => {
     }
 
     // Update các dữ liệu khác của user
-    updatedUser = await UserModel.updateUser(userId, updateData)
+    updatedUser = await userModel.updateUser(userId, updateData)
   }
 
   return picker.pickUserField(updatedUser)

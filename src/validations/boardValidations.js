@@ -3,7 +3,7 @@ import Joi from 'joi'
 import ApiErros from '~/utils/ApiErrors'
 import { BOARDTYPES } from '~/utils/constrants'
 
-const createNew = async (req, res, next) => {
+const createNew = async (req, _res, next) => {
   const validBoardData = Joi.object({
     title: Joi.string().required().min(3).max(50).trim().strict()
       .messages({
