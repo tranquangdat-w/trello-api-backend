@@ -5,7 +5,7 @@ import { GET_DB } from '~/config/mongodb'
 import { BOARDTYPES } from '~/utils/constrants'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
-
+import { userModel } from './userModel'
 const BOARD_COLLECTION_NAME = env.BOARD_COLLECTION_NAME
 
 const boardSchema = Joi.object({
@@ -18,10 +18,10 @@ const boardSchema = Joi.object({
     .items(Joi.string().guid({ version: 'uuidv4' }))
     .default([]),
   memberIds: Joi.array()
-    .items(Joi.string().guid({ version: 'uuidv4' })),
+    .items(Joi.string().guid({ version: 'uuidv4' })).default([]),
   ownerIds: Joi.array()
     .items(Joi.string().guid({ version: 'uuidv4' })),
-  createdAt: Joi.date().timestamp('javascript').default(() => Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   type: Joi.string().valid(...Object.values(BOARDTYPES)).required()
 })
@@ -89,6 +89,31 @@ const getBoardDetails = async (id) => {
         localField: '_id',
         foreignField: 'boardId',
         as: 'cards'
+        // pipeline: [
+        //   {
+        //     $project: {
+        //       _id: 1, title: 1, columnId: 1, boardId: 1, cover: 1
+        //     }
+        //   }
+        // ]
+      }
+    },
+    {
+      $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'ownerIds',
+        foreignField: '_id',
+        as: 'owners',
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+      }
+    },
+    {
+      $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'memberIds',
+        foreignField: '_id',
+        as: 'members',
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
       }
     }
   ]).next()
@@ -98,12 +123,14 @@ const getBoardDetails = async (id) => {
 
 const updateBoard = async (boardId, boardData) => {
   const result = await GET_DB().collection(BOARD_COLLECTION_NAME)
-    .updateOne({
-      _id: boardId
-    },
-    {
-      $set: boardData
-    })
+    .updateOne(
+      {
+        _id: boardId
+      },
+      {
+        $set: boardData
+      }
+    )
 
   return result
 }
@@ -125,6 +152,7 @@ const pullColumnOrderIds = async (boardId, columnId, options) => {
 
   return result
 }
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   boardSchema,

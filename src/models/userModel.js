@@ -13,6 +13,7 @@ export const ROLES = {
 const allowUpdateField = ['verifyToken', 'updatedAt', 'role', 'avatar', 'email', 'password', 'isActive']
 
 const USER_COLLECTION_NAME = env.USER_COLLECTION_NAME
+
 const userSchemna = Joi.object({
   _id: Joi.string().guid({ version: 'uuidv4' }).default(() => uuidv4()),
   avatar: Joi.string().default(null),
@@ -22,10 +23,10 @@ const userSchemna = Joi.object({
 
   role: Joi.string().valid(...Object.values(ROLES)).default(ROLES.CLIENT),
 
-  verifyToken: Joi.string().guid({ version: 'uuidv4' }).default(() => uuidv4()),
+  verifyToken: Joi.string().guid({ version: 'uuidv4' }).default(uuidv4),
   isActive: Joi.boolean().default(false),
 
-  createdAt: Joi.date().timestamp('javascript').default(() => Date.now()),
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null)
 
 })
@@ -70,7 +71,8 @@ const updateUser = async (userId, userData) => {
   return updatedUser
 }
 
-export const UserModel = {
+export const userModel = {
+  USER_COLLECTION_NAME,
   createNewAccount,
   findOneByUsername,
   findOneById,

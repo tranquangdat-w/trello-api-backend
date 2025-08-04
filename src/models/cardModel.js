@@ -14,16 +14,25 @@ const cardSchema = Joi.object({
   columnId: Joi.string().required().guid({ version: 'uuidv4' }),
 
   title: Joi.string().required().min(3).max(50).trim().strict(),
+  description: Joi.string().trim().default(''),
 
   cover: Joi.string().default(null),
 
-  createdAt: Joi.date().timestamp('javascript').default(() => Date.now()),
+  comments: Joi.array().items({
+    userId: Joi.string().required().guid({ version: 'uuidv4' }),
+    userEmail: Joi.string().required().email(),
+    userAvatar: Joi.string(),
+    userName: Joi.string(),
+    content: Joi.string(),
+    commentedAt: Joi.date().timestamp()
+  }).default([]),
+
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null)
 })
 
 const createNew = async (cardData, options) => {
-  const { error, value } = cardSchema
-    .validate(cardData, { abortEarly: false })
+  const { error, value } = cardSchema.validate(cardData, { abortEarly: false })
 
   if (error) throw error
 
@@ -71,6 +80,21 @@ const updateCard = async (cardId, updateCardData, options) => {
   return result
 }
 
+const unshiftNewComment = async (cardId, commentData) => {
+  const result = await GET_DB()
+    .collection(CARD_COLLECTION_NAME)
+    .updateOne(
+      {
+        _id: cardId
+      },
+      {
+        $push: { comments: { $each: [commentData], $position: 0 } }
+      }
+    )
+
+  return result
+}
+
 const deleteCardByColumnId = async (columnId, options) => {
   const result = await GET_DB()
     .collection(CARD_COLLECTION_NAME)
@@ -106,6 +130,7 @@ export const cardModel = {
   updateCard,
   deleteCardByColumnId,
   deleteCardById,
-  findOneById
+  findOneById,
+  unshiftNewComment
 }
 

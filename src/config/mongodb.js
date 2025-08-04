@@ -25,13 +25,17 @@ export const CONNECT_DB = async () => {
 export const GET_DB = () => {
   if (!mongoDbInstance) throw new Error('Must connect to Database first')
 
-  return env.MODE == 'dev' ? mongoDbClient.db(DATABASENAME) : mongoDbClient.db(DATABASENAME)
+  // This for better dev experience with lsp cmp
+  return mongoDbClient.db(DATABASENAME)
+
+  // return mongoDbInstance
 }
 
 export const CLOSE_DB = async () => {
   await mongoDbClient.close()
 }
 
+// Transaction with mongo
 export const START_NEW_SESSION = () => {
   return mongoDbClient.startSession()
 }

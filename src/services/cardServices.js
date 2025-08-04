@@ -17,7 +17,7 @@ const createNew = async (cardData, options) => {
 
 }
 
-const updateCard = async (cardId, updateCardData, options, coverFile) => {
+const updateCard = async (cardId, updateCardData, options, coverFile, userData) => {
   if (coverFile) {
     const uploadResult = await cloudinaryProvider.uploadImage(coverFile.buffer, 'cards')
 
@@ -28,11 +28,29 @@ const updateCard = async (cardId, updateCardData, options, coverFile) => {
       { cover: url }
     )
 
-    if (result.matchedCount == 0) throw new ApiErros(StatusCodes.NOT_FOUND, `Not found card with id ${cardId}`)
+    if (result.matchedCount == 0) throw new ApiErros(
+      StatusCodes.NOT_FOUND, `Not found card with id ${cardId}`)
 
     const cardUpdatedCover = await cardModel.findOneById(cardId)
 
     return cardUpdatedCover
+  }
+
+  // If add a comment to card
+  // updateCardData need contains:
+  // content
+  // userAvatar
+  // usreName
+  // commentedAt
+  if (updateCardData.commentedAt) {
+    const newCommentData = {
+      ...userData,
+      ...updateCardData
+    }
+
+    const result = await cardModel.unshiftNewComment(cardId, newCommentData)
+
+    return result
   }
 
   const result = await cardModel.updateCard(cardId, updateCardData, options)
@@ -50,8 +68,13 @@ const deleteCard = async (cardId) => {
   return { message: 'Delete card successfully' }
 }
 
+const findOneById = async (cardId) => {
+  return await cardModel.findOneById(cardId)
+}
+
 export const cardServices = {
   createNew,
   updateCard,
-  deleteCard
+  deleteCard,
+  findOneById
 }

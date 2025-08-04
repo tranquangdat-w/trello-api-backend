@@ -26,11 +26,14 @@ const createNew = async (req, res, next) => {
 const updateCard = async (req, res, next) => {
   try {
     assert(req.params.id, 'req.params.id must exists')
-
     const cover = req?.file
     const cardId = req.params.id
+    const userData = {
+      userId: req.jwtEncoded._id,
+      userEmail: req.jwtEncoded.email
+    }
 
-    const result = await cardServices.updateCard(cardId, req.body, null, cover)
+    const result = await cardServices.updateCard(cardId, req.body, null, cover, userData)
 
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
@@ -50,8 +53,22 @@ const deleteCard = async (req, res, next) => {
   }
 }
 
+const findOneById = async (req, res, next) => {
+  try {
+    const cardId = req.params.id
+
+    const result = await cardServices.findOneById(cardId)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const cardControllers = {
   createNew,
   updateCard,
-  deleteCard
+  deleteCard,
+  findOneById
 }
+

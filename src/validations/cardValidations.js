@@ -37,16 +37,34 @@ const createNew = async (req, _, next) => {
 const updateCard = async (req, res, next) => {
   try {
     const validUpdateCardData = Joi.object({
-      title: Joi.string()
-        .messages({
-          'string.base': 'Title must be string',
-          'string.empty': 'Title is not allow to be empty'
-        }),
-      columnId: Joi.string().guid({ version: 'uuidv4' })
-        .messages({
-          'string.base': 'columnId must be string',
-          'string.guid': 'columnId is not valid'
-        })
+      description: Joi.string().trim().empty('').messages({
+        'string.base': 'Description must be string'
+      }),
+      title: Joi.string().trim().messages({
+        'string.base': 'Title must be string',
+        'string.empty': 'Title is not allow to be empty'
+      }),
+      columnId: Joi.string().guid({ version: 'uuidv4' }).messages({
+        'string.base': 'columnId must be string',
+        'string.guid': 'columnId is not valid'
+      }),
+      // content Of comment
+      content: Joi.string().trim().empty().messages({
+        'string.base': 'Content of commnet must be string',
+        'string.empty': 'Content of commnet must not be empty'
+      }),
+      commentedAt: Joi.date().timestamp().messages({
+      }),
+      userName: Joi.string().strict().trim().messages({
+        'string.base': 'Username must be string',
+        'string.empty': 'Username must not be empty',
+        'string.trim': 'Username must not be trim'
+      }),
+      userAvatar: Joi.string().trim().messages({
+        'string.base': 'User avatar must be string',
+        'string.empty': 'User avatar must not be empty',
+        'string.trim': 'User avatar must not be trim'
+      })
     })
 
     await validUpdateCardData.validateAsync(req.body, { abortEarly: false })

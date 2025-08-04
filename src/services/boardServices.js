@@ -7,11 +7,10 @@ const createNew = async (userId, reqBody) => {
   const rawBoardData = {
     ...reqBody,
     slug: slug(reqBody.title),
-    memberIds: [userId],
     ownerIds: [userId]
   }
 
-  const { error, value } = boardModel.boardSchema.validate(rawBoardData, { abortEarly : false })
+  const { error, value } = boardModel.boardSchema.validate(rawBoardData, { abortEarly: false })
 
   if (error) throw error
 

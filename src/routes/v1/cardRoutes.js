@@ -15,12 +15,14 @@ Router.route('/')
   )
 
 Router.route('/:id')
+  .get(
+    cardControllers.findOneById
+  )
   .put(
     cardValidations.updateCard,
     multerUploadFileMiddleWare.uploadAvatar,
     cardControllers.updateCard
   )
-
   .delete(
     cardValidations.deleteCard,
     cardControllers.deleteCard

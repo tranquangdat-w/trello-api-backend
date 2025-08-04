@@ -7,9 +7,9 @@ export const errorHandlingMiddleware = (err, req, res, next) => {
 
   // Tạo response body cho để trả về
   const responseError = {
-    statusCode : err.statusCode,
-    message : err.message || StatusCodes[err.statusCode],
-    stack : err.stack
+    statusCode: err.statusCode,
+    message: err.message || StatusCodes[err.statusCode],
+    stack: err.stack
   }
 
   if (env.MODE != 'dev') delete responseError.stack
