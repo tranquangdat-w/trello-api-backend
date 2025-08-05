@@ -48,6 +48,9 @@ const updateCard = async (req, res, next) => {
         'string.base': 'columnId must be string',
         'string.guid': 'columnId is not valid'
       }),
+      dueDate: Joi.date().timestamp('javascript').allow(null),
+      isDone: Joi.boolean(),
+
       // content Of comment
       content: Joi.string().trim().empty().messages({
         'string.base': 'Content of commnet must be string',

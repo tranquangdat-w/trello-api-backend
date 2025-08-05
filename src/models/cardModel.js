@@ -28,7 +28,9 @@ const cardSchema = Joi.object({
   }).default([]),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
-  updatedAt: Joi.date().timestamp('javascript').default(null)
+  updatedAt: Joi.date().timestamp('javascript').default(null),
+  dueDate: Joi.date().timestamp('javascript').default(null),
+  isDone: Joi.boolean().default(false)
 })
 
 const createNew = async (cardData, options) => {

@@ -1,7 +1,7 @@
 import argon2 from 'argon2'
 import { StatusCodes } from 'http-status-codes'
 import env from '~/config/environment'
-import { UserModel as userModel } from '~/models/userModel'
+import { userModel } from '~/models/userModel'
 import { cloudinaryProvider } from '~/providers/cloudinaryProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { resendProvider } from '~/providers/sendMailProvider'
