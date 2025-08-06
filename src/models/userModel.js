@@ -52,7 +52,7 @@ const findOneByUsername = async (username) => {
 const findOneById = async (userId) => {
   return await GET_DB()
     .collection(USER_COLLECTION_NAME)
-    .findOne({ _id: userId })
+    .findOne({ _id: userId, isActive: true })
 }
 
 const updateUser = async (userId, userData) => {

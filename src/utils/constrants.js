@@ -2,9 +2,20 @@ export const LIMIT_COMMON_FILE_SIZE = 10485760 // 10 mb
 
 export const ALLOW_COMMON_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 
-export const BOARDTYPES = {
+export const BOARD_TYPES = {
   PUBLIC: 'public',
   PRIVATE: 'private'
+}
+
+export const INVITATION_TYPES = {
+  BOARD: 'board',
+  CARD: 'card'
+}
+
+export const INVITATION_STATUS = {
+  PENDING: 'pending',
+  ACCEPTED: 'accepted',
+  REJECTED: 'rejected'
 }
 
 export const PAGE_DEFAULT = 1

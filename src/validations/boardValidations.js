@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import ApiErros from '~/utils/ApiErrors'
-import { BOARDTYPES } from '~/utils/constrants'
+import { BOARD_TYPES } from '~/utils/constrants'
 
 const createNew = async (req, _res, next) => {
   const validBoardData = Joi.object({
@@ -21,7 +21,7 @@ const createNew = async (req, _res, next) => {
         'string.trim': 'Description must not have leading or trailing whitespace',
         'string.empty': 'Description is not allow empty, if dont want it please remove this file'
       }),
-    type: Joi.string().valid(...Object.values(BOARDTYPES)).required()
+    type: Joi.string().valid(...Object.values(BOARD_TYPES)).required()
       .messages({
         'string.base': 'Board type must be a string',
         'any.required': 'Board type is required',
@@ -61,7 +61,7 @@ export const updateBoard = async (req, res, next) => {
           'string.trim': 'Description must not have leading or trailing whitespace',
           'any.strict': 'Invalid description format'
         }),
-      type: Joi.string().valid(...Object.values(BOARDTYPES))
+      type: Joi.string().valid(...Object.values(BOARD_TYPES))
         .messages({
           'string.base': 'Board type must be a string',
           'any.only': 'Board type must be either PUBLIC or PRIVATE'

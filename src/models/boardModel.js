@@ -2,7 +2,7 @@ import Joi from 'joi'
 import env from '~/config/environment'
 import { v4 as uuidv4 } from 'uuid'
 import { GET_DB } from '~/config/mongodb'
-import { BOARDTYPES } from '~/utils/constrants'
+import { BOARD_TYPES } from '~/utils/constrants'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
 import { userModel } from './userModel'
@@ -23,7 +23,7 @@ const boardSchema = Joi.object({
     .items(Joi.string().guid({ version: 'uuidv4' })),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
-  type: Joi.string().valid(...Object.values(BOARDTYPES)).required()
+  type: Joi.string().valid(...Object.values(BOARD_TYPES)).required()
 })
 
 const createNew = async (boardData) => {
@@ -153,6 +153,24 @@ const pullColumnOrderIds = async (boardId, columnId, options) => {
   return result
 }
 
+const pushMemberIds = async (boardId, memberIds, options) => {
+  const result = await GET_DB()
+    .collection(BOARD_COLLECTION_NAME)
+    .updateOne(
+      {
+        _id: boardId
+      },
+      {
+        $push: { memberIds: memberIds }
+      },
+      {
+        ...options
+      }
+    )
+
+  return result
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   boardSchema,
@@ -161,6 +179,7 @@ export const boardModel = {
   findOneById,
   getBoardDetails,
   updateBoard,
-  pullColumnOrderIds
+  pullColumnOrderIds,
+  pushMemberIds
 }
 
