@@ -5,9 +5,10 @@ import env from './config/environment.js'
 import { CLOSE_DB, CONNECT_DB } from './config/mongodb.js'
 import { APIs_V1 } from '~/routes/v1/index.js'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddlewares.js'
-import corsConfiguration from './config/cors.js'
 import cookieParser from 'cookie-parser'
 import nocache from 'nocache'
+import { Server } from 'socket.io'
+import { corsConfiguration, corsOptions } from './config/cors.js'
 
 const START_SERVER = () => {
   const hostname = env.APP_HOST
@@ -32,8 +33,16 @@ const START_SERVER = () => {
   // ErrorHandlers
   app.use(errorHandlingMiddleware)
 
-  app.listen(port, hostname, async () => {
+  const server = app.listen(port, hostname, async () => {
     console.log(`Application running at http://${hostname}:${port}/`)
+  })
+
+  const io = new Server(server, { cors: corsOptions })
+
+  io.on('connection', (socket) => {
+    socket.on('FE_INVITE_USER_TO_BOARD', (inviteeUserName) => {
+      socket.broadcast.emit('receive-message', inviteeUserName)
+    })
   })
 
   exitHook(async () => {
