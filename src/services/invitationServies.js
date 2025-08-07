@@ -19,6 +19,14 @@ const createNewBoardInvitation = async (reqBody, inviterId) => {
     )
   }
 
+  if (inviterId === inviteeUser._id) {
+    throw new ApiErros(
+      StatusCodes.NOT_FOUND,
+      'You must not invite youself'
+    )
+  }
+
+
   const newBoardInvitationData = {
     inviterId,
     inviteeId: inviteeUser._id,
