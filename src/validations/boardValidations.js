@@ -114,7 +114,7 @@ const getBoards = async (req, rest, next) => {
         'number.integer': 'N board per page must be integer',
         'number.min': 'N board per page must >= 1'
       })
-    })
+    }).unknown()
 
     await validPaginationBoards.validateAsync(req.query, { abortEarly: false })
     next()

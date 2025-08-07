@@ -34,17 +34,30 @@ const createNew = async (boardData) => {
   return result
 }
 
-const getBoards = async (userId, page, nBoardPerPage) => {
+const getBoards = async (userId, page, nBoardPerPage, queryFilter) => {
+  const queryCondittion = [{
+    $or: [
+      { memberIds: userId },
+      { ownerIds: userId }
+    ]
+  }]
+
+  if (queryFilter) {
+    Object.keys(queryFilter).forEach(key => {
+      // CaseSensitive
+      // queryCondittion.push({ [key]: { $regex: queryFilter[key] } })
+
+      // case insensitive
+      queryCondittion.push({ [key]: { $regex: new RegExp(queryFilter[key], 'i') } })
+    })
+  }
+
+
   const result = GET_DB()
     .collection(BOARD_COLLECTION_NAME)
     .aggregate([
       {
-        $match: {
-          $or: [
-            { memberIds: userId },
-            { ownerIds: userId }
-          ]
-        }
+        $match: { $and: queryCondittion }
       },
       {
         $sort: { createdAt: -1 }

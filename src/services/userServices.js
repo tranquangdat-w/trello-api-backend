@@ -107,6 +107,7 @@ const refreshToken = async (req) => {
     const result = await JwtProvider.verifyToken(refreshToken, env.REFRESH_TOKEN_SECRET_KEY)
 
     const userInfo = {
+      _id: result._id,
       email: result.email,
       username: result.username,
       role: result.role,

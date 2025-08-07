@@ -19,8 +19,13 @@ const createNew = async (userId, reqBody) => {
   return result
 }
 
-const getBoards = async (userId, page, nBoardPerPage) => {
-  const listBoards = await boardModel.getBoards(userId, page, nBoardPerPage)
+const getBoards = async (userId, page, nBoardPerPage, queryFilter) => {
+  const listBoards = await boardModel.getBoards(
+    userId,
+    page,
+    nBoardPerPage,
+    queryFilter
+  )
 
   return listBoards
 }

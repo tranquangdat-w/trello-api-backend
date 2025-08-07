@@ -25,13 +25,18 @@ const getBoards = async (req, res, next) => {
   try {
     const userId = req.jwtEncoded._id
 
+    const { q } = req.query
+
+    const queryFilter = q
+
     const page = req.query?.page || PAGE_DEFAULT
     const nBoardPerPage = req.query?.nBoardPerPage || N_BOARD_PER_PAGE_DEFAULT
 
     const listBoard = await boardService.getBoards(
       userId,
       parseInt(page),
-      parseInt(nBoardPerPage)
+      parseInt(nBoardPerPage),
+      queryFilter
     )
 
     res.status(StatusCodes.OK).json(listBoard)
