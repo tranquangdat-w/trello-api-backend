@@ -4,6 +4,7 @@ import { boardModel } from '~/models/boardModel'
 import ApiErros from '~/utils/ApiErrors'
 import { cardModel } from '~/models/cardModel'
 import { cloudinaryProvider } from '~/providers/cloudinaryProvider'
+import { ACTION_TO_MEMBER_CARD } from '~/utils/constrants'
 
 const createNew = async (cardData, options) => {
   assert(cardData.boardId, 'CardData.boardId must exist')
@@ -51,6 +52,22 @@ const updateCard = async (cardId, updateCardData, options, coverFile, userData) 
     const result = await cardModel.unshiftNewComment(cardId, newCommentData)
 
     return result
+  }
+
+  //If update memberIds
+  if (updateCardData.updateMember) {
+    const { memberId, action } = updateCardData.updateMember
+    if (action == ACTION_TO_MEMBER_CARD.ADD) {
+      await cardModel.pushMemberIds(cardId, memberId)
+    }
+
+    if (action === ACTION_TO_MEMBER_CARD.REMOVE) {
+      await cardModel.pullMemberIds(cardId, memberId)
+    }
+
+    const cardUpdatedCover = await cardModel.findOneById(cardId)
+
+    return cardUpdatedCover
   }
 
   const result = await cardModel.updateCard(cardId, updateCardData, options)

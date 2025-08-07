@@ -38,7 +38,6 @@ const updateInvitation = async (req, res, next) => {
 
     const invitationId = req.params['invitationId']
 
-
     const updatedInvitation = await invitationServies
       .updateInvitation(invitationId, userId, status, { session })
 

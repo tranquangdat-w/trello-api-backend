@@ -1,6 +1,8 @@
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import ApiErros from '~/utils/ApiErrors'
+import { ACTION_TO_MEMBER_CARD } from '~/utils/constrants'
+
 
 const validCardData = Joi.object({
   title: Joi.string().required().min(3).max(50).trim()
@@ -51,6 +53,12 @@ const updateCard = async (req, res, next) => {
       dueDate: Joi.date().timestamp('javascript').allow(null),
       isDone: Joi.boolean(),
 
+      // CardMemberId
+      updateMember: {
+        memberId: Joi.string().guid({ version: 'uuidv4' }).required(),
+        action: Joi.string().valid(...Object.values(ACTION_TO_MEMBER_CARD)).required()
+      },
+
       // content Of comment
       content: Joi.string().trim().empty().messages({
         'string.base': 'Content of commnet must be string',
@@ -99,3 +107,4 @@ export const cardValidations = {
   updateCard,
   deleteCard
 }
+

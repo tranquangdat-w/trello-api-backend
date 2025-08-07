@@ -18,6 +18,9 @@ const cardSchema = Joi.object({
 
   cover: Joi.string().default(null),
 
+  memberIds: Joi.array()
+    .items(Joi.string().guid({ version: 'uuidv4' })).default([]),
+
   comments: Joi.array().items({
     userId: Joi.string().required().guid({ version: 'uuidv4' }),
     userEmail: Joi.string().required().email(),
@@ -126,6 +129,26 @@ const findOneById = async (cardId) => {
     .findOne({ _id: cardId })
 }
 
+const pushMemberIds = async (cardId, memberId) => {
+  const result = await GET_DB()
+    .collection(CARD_COLLECTION_NAME)
+    .updateOne(
+      { _id: cardId },
+      { $addToSet: { memberIds: memberId } }
+    )
+  return result
+}
+
+const pullMemberIds = async (cardId, memberId) => {
+  const result = await GET_DB()
+    .collection(CARD_COLLECTION_NAME)
+    .updateOne(
+      { _id: cardId },
+      { $pull: { memberIds: memberId } }
+    )
+  return result
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   createNew,
@@ -133,6 +156,8 @@ export const cardModel = {
   deleteCardByColumnId,
   deleteCardById,
   findOneById,
-  unshiftNewComment
+  unshiftNewComment,
+  pushMemberIds,
+  pullMemberIds
 }
 
