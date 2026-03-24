@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import { TokenExpiredError } from 'jsonwebtoken'
 import env from '~/config/environment.js'
 import { JwtProvider } from '~/providers/JwtProvider'
+import { ROLES } from '~/models/userModel'
 import ApiErros from '~/utils/ApiErrors.js'
 
 const isAuthorized = async (req, _res, next) => {
@@ -36,6 +37,18 @@ const isAuthorized = async (req, _res, next) => {
   }
 }
 
+const isAdmin = async (req, _res, next) => {
+  const userRole = req.jwtEncoded?.role
+
+  if (userRole !== ROLES.ADMIN) {
+    next(new ApiErros(StatusCodes.FORBIDDEN, 'Admin access required'))
+    return
+  }
+
+  next()
+}
+
 export const authMiddleware = {
-  isAuthorized
+  isAuthorized,
+  isAdmin
 }

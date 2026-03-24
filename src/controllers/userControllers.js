@@ -94,11 +94,65 @@ const update = async (req, res, next) => {
   }
 }
 
+const getAllUsers = async (req, res, next) => {
+  try {
+    const { page, limit, search } = req.query
+    const result = await userServices.getAllUsers({ page, limit, search })
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getUserById = async (req, res, next) => {
+  try {
+    const { userId } = req.params
+    const user = await userServices.getUserById(userId)
+
+    res.status(StatusCodes.OK).json({ user })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const updateUserRole = async (req, res, next) => {
+  try {
+    const adminUserId = req.jwtEncoded._id
+    const { userId } = req.params
+    const { role } = req.body
+
+    const updatedUser = await userServices.updateUserRole(adminUserId, userId, role)
+
+    res.status(StatusCodes.OK).json({ user: updatedUser })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const updateUserStatus = async (req, res, next) => {
+  try {
+    const adminUserId = req.jwtEncoded._id
+    const { userId } = req.params
+    const { isActive } = req.body
+
+    const updatedUser = await userServices.updateUserStatus(adminUserId, userId, isActive)
+
+    res.status(StatusCodes.OK).json({ user: updatedUser })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const userControllers = {
   createNewAccount,
   verifyAccount,
   login,
   logout,
   refreshToken,
-  update
+  update,
+  getAllUsers,
+  getUserById,
+  updateUserRole,
+  updateUserStatus
 }

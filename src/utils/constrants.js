@@ -27,6 +27,8 @@ export const PAGE_DEFAULT = 1
 
 export const N_BOARD_PER_PAGE_DEFAULT = 12
 
+export const N_USER_PER_PAGE_DEFAULT = 20
+
 export const getHtmlUserRegisterContent = (username, verificationLink) => {
   const htmlMailContent = `<!DOCTYPE html>
 <html lang="en">

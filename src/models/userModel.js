@@ -23,7 +23,7 @@ const userSchemna = Joi.object({
 
   role: Joi.string().valid(...Object.values(ROLES)).default(ROLES.CLIENT),
 
-  verifyToken: Joi.string().guid({ version: 'uuidv4' }).default(uuidv4),
+  verifyToken: Joi.string().guid({ version: 'uuidv4' }).default(() => uuidv4()),
   isActive: Joi.boolean().default(false),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -52,7 +52,43 @@ const findOneByUsername = async (username) => {
 const findOneById = async (userId) => {
   return await GET_DB()
     .collection(USER_COLLECTION_NAME)
-    .findOne({ _id: userId, isActive: true })
+    .findOne({ _id: userId })
+}
+
+const findAll = async ({ page = 1, limit = 20, search = '' }) => {
+  const skip = (Number(page) - 1) * Number(limit)
+  const query = {}
+
+  if (search) {
+    query.$or = [
+      { username: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } }
+    ]
+  }
+
+  const users = await GET_DB()
+    .collection(USER_COLLECTION_NAME)
+    .find(query)
+    .skip(skip)
+    .limit(Number(limit))
+    .toArray()
+
+  return users
+}
+
+const countDocuments = async (search = '') => {
+  const query = {}
+
+  if (search) {
+    query.$or = [
+      { username: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } }
+    ]
+  }
+
+  return await GET_DB()
+    .collection(USER_COLLECTION_NAME)
+    .countDocuments(query)
 }
 
 const updateUser = async (userId, userData) => {
@@ -76,5 +112,7 @@ export const userModel = {
   createNewAccount,
   findOneByUsername,
   findOneById,
+  findAll,
+  countDocuments,
   updateUser
 }

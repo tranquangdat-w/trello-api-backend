@@ -1,12 +1,12 @@
 import argon2 from 'argon2'
 import { StatusCodes } from 'http-status-codes'
 import env from '~/config/environment'
-import { userModel } from '~/models/userModel'
+import { userModel, ROLES } from '~/models/userModel'
 import { cloudinaryProvider } from '~/providers/cloudinaryProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { resendProvider } from '~/providers/sendMailProvider'
 import ApiErros from '~/utils/ApiErrors'
-import { getHtmlUserRegisterContent } from '~/utils/constrants'
+import { getHtmlUserRegisterContent, PAGE_DEFAULT, N_USER_PER_PAGE_DEFAULT } from '~/utils/constrants'
 import { picker } from '~/utils/picker'
 
 const createNewAccount = async (registerData) => {
@@ -178,10 +178,72 @@ const update = async (userId, updateData, avatarFile) => {
   return picker.pickUserField(updatedUser)
 }
 
+const getAllUsers = async ({ page = PAGE_DEFAULT, limit = N_USER_PER_PAGE_DEFAULT, search = '' }) => {
+  const users = await userModel.findAll({ page, limit, search })
+  const total = await userModel.countDocuments(search)
+
+  return {
+    users: users.map(user => picker.pickUserField(user)),
+    total,
+    page: Number(page),
+    limit: Number(limit)
+  }
+}
+
+const getUserById = async (userId) => {
+  const user = await userModel.findOneById(userId)
+
+  if (!user) {
+    throw new ApiErros(StatusCodes.NOT_FOUND, 'User not found')
+  }
+
+  return picker.pickUserField(user)
+}
+
+const updateUserRole = async (adminUserId, targetUserId, role) => {
+  if (adminUserId === targetUserId) {
+    throw new ApiErros(StatusCodes.BAD_REQUEST, 'Cannot modify your own role')
+  }
+
+  const targetUser = await userModel.findOneById(targetUserId)
+
+  if (!targetUser) {
+    throw new ApiErros(StatusCodes.NOT_FOUND, 'User not found')
+  }
+
+  if (!Object.values(ROLES).includes(role)) {
+    throw new ApiErros(StatusCodes.BAD_REQUEST, 'Invalid role value')
+  }
+
+  const updatedUser = await userModel.updateUser(targetUserId, { role })
+
+  return picker.pickUserField(updatedUser)
+}
+
+const updateUserStatus = async (adminUserId, targetUserId, isActive) => {
+  if (adminUserId === targetUserId) {
+    throw new ApiErros(StatusCodes.BAD_REQUEST, 'Cannot modify your own status')
+  }
+
+  const targetUser = await userModel.findOneById(targetUserId)
+
+  if (!targetUser) {
+    throw new ApiErros(StatusCodes.NOT_FOUND, 'User not found')
+  }
+
+  const updatedUser = await userModel.updateUser(targetUserId, { isActive })
+
+  return picker.pickUserField(updatedUser)
+}
+
 export const userServices = {
   createNewAccount,
   verifyAccount,
   login,
   refreshToken,
-  update
+  update,
+  getAllUsers,
+  getUserById,
+  updateUserRole,
+  updateUserStatus
 }

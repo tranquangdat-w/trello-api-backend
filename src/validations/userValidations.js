@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-escape */
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
+import { ROLES } from '~/models/userModel'
 import ApiErros from '~/utils/ApiErrors'
 
 const createNewAccount = async (req, _res, next) => {
@@ -124,10 +125,45 @@ const update = async (req, _res, next) => {
     next(error)
   }
 }
+
+const updateRole = async (req, _res, next) => {
+  const roleValidation = Joi.object({
+    role: Joi.string().valid(...Object.values(ROLES)).required().messages({
+      'any.required': 'Role is required',
+      'any.only': 'Role must be either client or admin'
+    })
+  })
+
+  try {
+    await roleValidation.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error) {
+    next(new ApiErros(StatusCodes.BAD_REQUEST, error.message))
+  }
+}
+
+const updateStatus = async (req, _res, next) => {
+  const statusValidation = Joi.object({
+    isActive: Joi.boolean().required().messages({
+      'any.required': 'isActive is required',
+      'boolean.base': 'isActive must be a boolean'
+    })
+  })
+
+  try {
+    await statusValidation.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error) {
+    next(new ApiErros(StatusCodes.BAD_REQUEST, error.message))
+  }
+}
+
 export const userValidations = {
   createNewAccount,
   verifyAccount,
   login,
-  update
+  update,
+  updateRole,
+  updateStatus
 }
 

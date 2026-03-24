@@ -25,5 +25,35 @@ Router.put(
   userControllers.update
 )
 
+Router.get(
+  '/admin/users',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAdmin,
+  userControllers.getAllUsers
+)
+
+Router.get(
+  '/admin/users/:userId',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAdmin,
+  userControllers.getUserById
+)
+
+Router.put(
+  '/admin/users/:userId/role',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAdmin,
+  userValidations.updateRole,
+  userControllers.updateUserRole
+)
+
+Router.put(
+  '/admin/users/:userId/status',
+  authMiddleware.isAuthorized,
+  authMiddleware.isAdmin,
+  userValidations.updateStatus,
+  userControllers.updateUserStatus
+)
+
 
 export const userRoutes = Router
